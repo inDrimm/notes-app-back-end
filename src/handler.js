@@ -81,7 +81,7 @@ const editNoteByIdHandler = (request, h)=>{
             updatedAt,
         }
 
-        const reponse = h.response({
+        const response = h.response({
             status :  'success',
             message : 'Catatan berhasil diperbaharui',
         });
@@ -112,7 +112,7 @@ const deleteNotesByIdHandler=(request, h)=>{
         return response;
     }
 
-    const reponse = h.response({
+    const response = h.response({
         status : 'fail',
         message : 'Catatan gagal dihapus. Id tidak ditemukan',
     });

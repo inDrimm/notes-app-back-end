@@ -26,3 +26,271 @@ package.json
 response.header('Access-Control-Allow-Origin', 'http://notesapp-v1.dicodingacademy.com');
 //Atau Anda bisa menggunakan tanda * pada nilai origin untuk memperbolehkan data dikonsumsi oleh seluruh origin.
 response.header('Access-Control-Allow-Origin', '*');
+
+update /PUT
+lampirkan pada postman di body request
+{
+   "title": "Catatan A Revisi",
+   "tags": ["Android", "Web"],
+   "body": "Isi dari catatan A revisi"
+}
+
+postman{
+Mulai tuliskan skenario testing di sini.
+Postman memiliki global object pm. Untuk membuat testing, gunakan method pm.test(). Method tersebut menerima dua parameter, yang pertama nama test dan yang kedua adalah spec function. Method test() mirip seperti method it() pada Jest (Anda sudah mempelajarinya di kelas Belajar Dasar Pemrograman JavaScript).
+}
+
+1. Test Add Notes {
+  -Pastikan response status bernilai 201 dengan cara:
+  pm.test('response status code should have 201 value', () => {
+    pm.response.to.have.status(201);
+  }); 
+
+  -Buat test dengan nama ‘response Content-Type header should have application/json value’.
+  pm.test('response Content-Type header should have application/json value', () => {
+    pm.expect(pm.response.headers.get('Content-Type')).to.equals('application/json');
+  });
+
+  -Buat test dengan nama ‘response body should be an object’.
+  pm.test('response body should an object', () => {
+      const responseJson = pm.response.json();
+      pm.expect(responseJson).to.be.an('object');
+  }); 
+  -Silakan buat testing baru bernama ‘response body should have the correct property and value.’
+  pm.test('response body should have correct property and value', () => {
+      const responseJson = pm.response.json();
+      pm.expect(responseJson).to.ownProperty('status');
+      pm.expect(responseJson.status).to.equals('success');
+      pm.expect(responseJson).to.ownProperty('message');
+      pm.expect(responseJson.message).to.equals('Catatan berhasil ditambahkan');
+      pm.expect(responseJson).to.ownProperty('data');
+      pm.expect(responseJson.data).to.be.an('object');
+  });
+  -Buat test baru dengan nama ‘response body data should have noteId property and not equal to empty’.
+  pm.test('response body data should have noteId property and not equal to empty', () => {
+      //1
+      const responseJson = pm.response.json();
+      const { data } = responseJson;
+      //2
+      pm.expect(data).to.ownProperty('noteId');
+      pm.expect(data.noteId).to.not.equals('');
+      //3
+      pm.environment.set('noteId', data.noteId);
+  });
+}
+
+2.Test Getting All Notes{
+-Buat testing baru dengan nama “response status code should have 200 value”.
+    pm.test('response status code should have 200 value', () => {
+    pm.response.to.have.status(200);
+  });
+- Lanjut, buat testing baru dengan nama ‘response Content-Type header should have application/json value’.
+    pm.test('response Content-Type header should have application/json value', () => {
+    pm.expect(pm.response.headers.get('Content-Type')).to.equals('application/json; charset=utf-8');
+  }); 
+-buat testing baru dengan nama ‘response body should an object’.
+    pm.test('response body should an object', () => {
+    const responseJson = pm.response.json();
+    //menguji response json
+    pm.expect(responseJson).to.be.an('object');
+  }); 
+- Silakan buat testing baru bernama ‘response body should have the correct property and value’.
+Di dalamnya, uji nilai response body yang merupakan object bahwa ia harus memiliki properti dan nilai yang sesuai. Untuk melakukannya, tulis kode berikut:
+  pm.test('response body should have the correct property and value', () => {
+    const responseJson = pm.response.json();
+    pm.expect(responseJson).to.have.ownProperty('status');
+    pm.expect(responseJson.status).to.equals('success');
+    pm.expect(responseJson).to.have.ownProperty('data');
+    pm.expect(responseJson.data).to.be.an('object');
+  }); 
+- Buat test dengan nama ‘response body data should have a notes array and contain at least 1 item’.
+//Di dalamnya, dapatkan objek data dari response body dalam bentuk JSON.
+pm.test('response body data should have a notes array and contain at least 1 item', () => {
+   const responseJson = pm.response.json();
+   const { data } = responseJson;
+   //Kemudian uji nilai objek data bahwa ia harus memiliki properti notes yang merupakan array dan minimal memiliki 1 item di dalamnya.
+   pm.expect(data).to.have.ownProperty('notes');
+   pm.expect(data.notes).to.be.an('array');
+   pm.expect(data.notes).lengthOf.at.least(1);
+});
+
+}
+
+Skenario 3: Getting Specified Note (Mendapatkan catatan secara spesifik)
+
+Pastikan response memiliki status code 200.
+Pastikan header response Content-Type memiliki nilai application/json.
+Pastikan body response merupakan object.
+Pastikan body response memiliki properti dan nilai atau tipe data yang sesuai.
+Pastikan data pada response body memiliki properti note yang merupakan sebuah objek.
+Pastikan objek note di dalam data memiliki properti id, title, body, dan tags dengan nilai yang sesuai.
+
+- Seperti biasa, pertama kita buat test untuk menguji status code dari respons dengan nama “response status code should have 200 value”.
+pm.test('response status code should have 200 value', () => {
+  pm.response.to.have.status(200);
+}); 
+- buat testing baru dengan nama ‘response Content-Type header should have application/json value’.
+pm.test('response Content-Type header should have application/json value', () => {
+   pm.expect(pm.response.headers.get('Content-Type')).to.equals('application/json; charset=utf-8');
+});
+-buat tes baru dengan nama “response body should be an object”.
+pm.test('response body should be an object', () => {
+   const responseJson = pm.response.json();
+   //uji response json sebagai objek
+   pm.expect(responseJson).to.be.an('object');
+}); 
+- Lanjut kita uji objek response body-nya, ia harus memiliki properti yang sesuai. Buat test baru dengan nama “response body should have the correct property and value”.
+pm.test('response body should have the correct property and value', () => {
+   //response dalam bentuk json
+   const responseJson = pm.response.json();
+ 
+   pm.expect(responseJson).to.have.ownProperty('status');
+   pm.expect(responseJson.status).to.equals('success');
+   pm.expect(responseJson).to.have.ownProperty('data');
+   pm.expect(responseJson.data).to.be.an('object');
+}); 
+- Buat test baru dengan nama “'response body data should contain note object”.
+pm.test('response body data should contain note object', () => {
+   const responseJson = pm.response.json();
+   //Dapatkan objek data dari response body dalam bentuk JSON.
+   const { data } = responseJson;
+
+//Uji objek data bahwa ia harus memiliki properti note yang merupakan sebuah objek.
+   pm.expect(data).to.have.ownProperty('note');
+   pm.expect(data.note).to.be.an('object');
+});
+-Buat test baru dengan nama “note object should contain correct value for id, title, body, and tags property”.
+pm.test('note object should contain correct value for id, title, body, and tags property', () => {
+  const responseJson = pm.response.json();
+  //dapatkan objek note dari data di dalam response body.
+  const { data: { note } } = responseJson;
+
+  //Sebelum menguji properti dan nilai di dalam objek note, tentukan dulu nilai ekspektasi dari id, title, body, dan tags. Nilai id bisa Anda dapatkan dari variabel environment melalui method pm.environment.get(‘noteId’), sedangkan yang lain Anda bisa lihat nilainya pada request Adding Notes yang dikirimkan melalui body.
+   const expectedId = pm.environment.get('noteId');
+   const expectedTitle = 'Catatan A';
+   const expectedTags = ['Android', 'Web'];
+   const expectedBody = 'Isi dari catatan A';
+
+/uji objek note bahwa ia harus memiliki properti dan nilai yang sesuai dengan nilai ekspektasi.
+   pm.expect(note).to.have.ownProperty('id');
+   pm.expect(note.id).to.equals(expectedId);
+   pm.expect(note).to.have.ownProperty('title');
+   pm.expect(note.title).to.equals(expectedTitle);
+   pm.expect(note).to.have.ownProperty('tags');
+   //deep equals, qeuals ke eql
+   pm.expect(note.tags).to.eql(expectedTags);
+   pm.expect(note).to.have.ownProperty('body');
+   pm.expect(note.body).to.equals(expectedBody);
+});
+
+-Skenario 4: Update Note (Memperbarui data catatan)
+
+Pastikan response memiliki status code 200.
+Pastikan header response Content-Type memiliki nilai application/json.
+Pastikan body response adalah object.
+Pastikan body response memiliki properti dan nilai yang sesuai.
+Ketika mengakses catatan yang diperbaharui
+Pastikan catatan yang diperbarui memiliki nilai terbaru.
+
+- Silakan buat test dengan nama “response status code should have 200 value”.
+pm.test('response status code should have 200 value', () => {
+    pm.response.to.have.status(200);
+});
+- Silakan buat test baru dengan nama “‘response Content-Type header should have application/json value”.
+pm.test('response Content-Type header should have application/json value', () => {
+   pm.expect(pm.response.headers.get('Content-Type')).to.equals("application/json; charset=utf-8");
+}); 
+- Silakan buat test baru dengan nama “‘response body should be an object”.
+pm.test('response body should be an object', () => {
+   const responseJson = pm.response.json();
+   //uji responseJson bahwa ia harus sebuah objek.
+   pm.expect(responseJson).to.be.an('object');
+});
+- Buat test baru dengan nama “‘response body should have correct properti and value”.
+pm.test('response body should have correct property and value', () => {
+   const responseJson = pm.response.json();
+ 
+   pm.expect(responseJson).to.have.ownProperty('status');
+   pm.expect(responseJson.status).to.equals('success');
+   pm.expect(responseJson).to.have.ownProperty('message');
+   pm.expect(responseJson.message).to.equals('Catatan berhasil diperbarui');
+});
+- buat test baru dengan nama “when request the updated note”.
+pm.test('when request the updated note', () => {
+  //kita lakukan permintaan untuk mendapatkan catatan secara spesifik berdasarkan id.
+  // Dapatkan dulu nilai noteId dari environment variable.
+   const noteId = pm.environment.get('noteId');
+
+   //buatlah request ke http://localhost:5000/notes/${notesId} dengan menggunakan method pm.sendRequest().
+    pm.sendRequest(`http://localhost:5000/notes/${noteId}`, (error, response) => {
+      //kita buat test baru dengan nama “then the updated note should contain the latest data” untuk menguji nilai dari body response. Namun ingat, lakukan hal tersebut bila nilai error tidak terisi saja.
+      if(!error) {
+            pm.test('then the updated note should contain the latest data', () => {
+                //kita dapatkan nilai objek note pada data melalui response body dalam bentuk JSON.
+                const responseJson = response.json();
+                const { data: { note } } = responseJson;
+
+                //tentukan nilai ekspektasi dari title, tags, dan body.
+                const expectedTitle = 'Catatan A Revised';
+                const expectedTags = ['Android', 'Web'];
+                const expectedBody = 'Isi dari Catatan A Revised';
+
+                //Sekarang kita uji nilai dari properti title, tags, dan body yang dimiliki objek note dengan nilai ekspektasi.
+                pm.expect(note.title).to.equals(expectedTitle);
+                pm.expect(note.tags).to.eql(expectedTags);
+                pm.expect(note.body).to.equals(expectedBody);
+            });
+        }
+   });
+});
+
+- Skenario 5: Delete Note (Menghapus catatan)
+
+Pastikan response memiliki status code 200.
+Pastikan header response Content-Type memiliki nilai application/json.
+Pastikan body response adalah object.
+Pastikan body response memiliki properti dan nilai yang sesuai.
+Ketika mengakses catatan yang dihapus
+Pastikan catatan yang dihapus tidak ditemukan.
+
+-  buat test dengan nama “response status code should have 200 value”.
+pm.test('response status code should have 200 value', () => {
+   pm.response.to.have.status(200);
+});
+
+- buat tes dengan nama “‘response Content-Type header should have application/json value”.
+  pm.test('response Content-Type header should have application/json value', () => {
+   pm.expect(pm.response.headers.get('Content-Type')).to.equals('application/json; charset=utf-8')
+}); 
+- buat test baru dengan nama “‘response body should be an object”.
+  pm.test('response body should be an object', () => {
+   const responseJson = pm.response.json();
+   pm.expect(responseJson).to.be.an('object');
+});
+-  Buat test baru dengan nama “‘response body should have correct properti and value”.
+  pm.test('response body should have correct property and value', () => {
+   const responseJson = pm.response.json();
+ 
+   pm.expect(responseJson).to.have.ownProperty('status');
+   pm.expect(responseJson.status).to.equals('success');
+   pm.expect(responseJson).to.have.ownProperty('message');
+   pm.expect(responseJson.message).to.equals('Catatan berhasil dihapus');
+}); 
+- buat test baru dengan nama “when request the deleted note”.
+  pm.test('when request the deleted note', () => {
+    const noteId = pm.environment.get('noteId');
+    pm.sendRequest(`http://localhost:5000/notes/${noteId}`, (error, response) => {
+        if(!error) {
+            pm.test('the deleted note should be not found', () => {
+                pm.expect(response.code).to.equals(404);
+                const responseJson = response.json();
+                pm.expect(responseJson.status).to.equals('fail');
+                pm.expect(responseJson.message).to.equals('Catatan tidak ditemukan');
+            });
+        }
+    });
+});
+
+npm install newman --g
+Oke. Selanjutnya kita akan menjalankan berkas Postman Collection dengan menggunakan Newman. Agar mudah dalam menjalankannya, Anda bisa manfaatkan Terminal yang ada di VSCode karena berkas Postman Collection dan Postman Environment ada di dalam folder proyek notes-app-back-end.
+newman run notes-api-test.postman_collection.json --environment notes-api-test.postman_environment.json
